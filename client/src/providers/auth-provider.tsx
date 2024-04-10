@@ -1,6 +1,7 @@
 "use client";
 
-import React, { createContext, useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import React, { createContext, useContext, useEffect, useState } from "react";
 
 export type UserInfo = {
   id: string;
@@ -21,9 +22,36 @@ export const AuthContext = createContext<AuthContextType>({
   setUser: () => {},
 });
 
+export const useAuth = () => useContext(AuthContext);
+
 const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  const router = useRouter();
+  const pathname = usePathname();
+
   const [isAuthed, setIsAuthed] = useState(false);
   const [user, setUser] = useState<UserInfo>({ id: "", username: "" });
+
+  useEffect(() => {
+    const userInfo = localStorage.getItem("userInfo");
+
+    if (!userInfo) {
+      if (pathname !== "/signup") {
+        router.push("/login");
+        return;
+      }
+    } else {
+      const data: UserInfo = JSON.parse(userInfo);
+
+      if (data) {
+        setUser({
+          id: data.id,
+          username: data.username,
+        });
+      }
+
+      setIsAuthed(true);
+    }
+  }, [isAuthed]);
 
   return <AuthContext.Provider value={{ isAuthed, setIsAuthed, user, setUser }}>{children}</AuthContext.Provider>;
 };

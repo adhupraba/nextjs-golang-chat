@@ -1,6 +1,9 @@
 package router
 
 import (
+	"time"
+
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 
 	"server/internal/user"
@@ -11,6 +14,20 @@ var r *gin.Engine
 
 func InitRouter(userHandler *user.Handler, wsHandler *ws.Handler) {
 	r = gin.Default()
+
+	r.Use(cors.New(cors.Config{
+		// AllowAllOrigins:  true,
+		AllowOrigins:     []string{"http://localhost:3000"},
+		AllowMethods:     []string{"POST", "PUT", "PATCH", "DELETE", "OPTIONS", "GET"},
+		AllowHeaders:     []string{"Content-Type", "Authorization", "Origin"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+		AllowWebSockets:  true,
+		AllowOriginFunc: func(origin string) bool {
+			return true
+		},
+	}))
 
 	r.POST("/signup", userHandler.CreateUser)
 	r.POST("/login", userHandler.Login)
