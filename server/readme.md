@@ -23,3 +23,12 @@ To migrate down the changes
 ```bash
 make migratedown
 ```
+
+# Build for production
+
+````bash
+# Build for production
+
+```bash
+go build -tags netgo -ldflags '-s -w' -o server ./cmd/main.go
+````
